@@ -1,31 +1,33 @@
-window.addEventListener('load', (event) => {
-  console.log('page is fully loaded');
 
-  setTimeout(() => {
-    const elementsWillBeRemoved = [];
-    const iframeNodeList = document.querySelectorAll("iframe[id^='offer-']");
-    const tpBackdrop = document.querySelector(".tp-backdrop.tp-active");
-    const tpModal = document.querySelector(".tp-modal");
-  
-    iframeNodeList.forEach(x => {
-      if (x.parentNode && x.parentNode.parentNode) {
-        elementsWillBeRemoved.push(x.parentNode.parentNode);
-      }
-    });
-  
-    elementsWillBeRemoved.push(tpBackdrop);
-    elementsWillBeRemoved.push(tpModal);
-  
-    elementsWillBeRemoved.forEach(x => {
-      if (x) {
-        x.remove();
-      }
-    });
-  
-    document.body.setAttribute('style', 'overflow:scroll !important');
-  }, 1000);
+// const REMOVE_SELECTORS = [
+//   "iframe[id^='offer-']",
+//   ".tp-backdrop.tp-active",
+//   ".tp-modal"
+// ];
 
-  
+const bodyNode = document.querySelector("body");
+
+const observer = new MutationObserver((mutationsList, observer) => {
+
+  for (const mutation of mutationsList) {
+    if (mutation.type === "childList") {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeName === "IFRAME") {
+          const attrs = node.attributes;
+          if (attrs) {
+            const idAttr = attrs.getNamedItem("id");
+
+            if (idAttr) {
+              console.log(idAttr.value);
+              node.remove();
+            }
+          }
+          
+        }
+
+      }
+    }
+  }
 });
 
-
+observer.observe(bodyNode, { attributes: true, childList: true, subtree: true })
